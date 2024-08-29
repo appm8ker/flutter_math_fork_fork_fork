@@ -431,5 +431,5 @@ class PartialFontOptions {
 
   @override
   int get hashCode =>
-      hashValues(fontFamily.hashCode, fontWeight.hashCode, fontShape.hashCode);
+      Object.hash(fontFamily.hashCode, fontWeight.hashCode, fontShape.hashCode);
 }
