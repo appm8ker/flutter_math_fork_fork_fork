@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-import '../../render/layout/layout_builder_baseline.dart';
 import '../../render/layout/shift_baseline.dart';
 import '../../render/layout/vlist.dart';
 import '../../render/svg/stretchy.dart';
@@ -48,7 +47,7 @@ class StretchyOpNode extends SlotableNode<EquationRowNode?> {
             // From katex.less/x-arrow-pad
             customCrossSize: (width) =>
                 BoxConstraints(minWidth: width + 1.0.cssEm.toLpUnder(options)),
-            child: LayoutBuilderPreserveBaseline(
+            child: LayoutBuilder(
               builder: (context, constraints) => ShiftBaseline(
                 relativePos: 0.5,
                 offset: options.fontMetrics.xHeight.cssEm.toLpUnder(options),

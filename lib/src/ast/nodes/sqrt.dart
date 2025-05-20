@@ -6,14 +6,13 @@ import 'package:flutter/widgets.dart';
 
 import '../../render/constants.dart';
 import '../../render/layout/custom_layout.dart';
-import '../../render/layout/layout_builder_baseline.dart';
 import '../../render/layout/min_dimension.dart';
 import '../../render/layout/reset_baseline.dart';
 import '../../render/svg/delimiter.dart';
 import '../../render/svg/svg_geomertry.dart';
 import '../../render/svg/svg_string.dart';
-import '../../render/utils/render_box_offset.dart';
 import '../../render/utils/render_box_layout.dart';
+import '../../render/utils/render_box_offset.dart';
 import '../options.dart';
 import '../size.dart';
 import '../style.dart';
@@ -65,7 +64,7 @@ class SqrtNode extends SlotableNode {
             // so 'SelectionManagerMixin.getRenderLineAtOffset' can find
             // render lines in the base widget
             child: IgnorePointer(
-              child: LayoutBuilderPreserveBaseline(
+              child: LayoutBuilder(
                 builder: (context, constraints) => sqrtSvg(
                   minDelimiterHeight: constraints.minHeight,
                   baseWidth: constraints.minWidth,
@@ -172,8 +171,8 @@ class SqrtLayoutDelegate extends CustomLayoutDelegate<_SqrtPos> {
     final index = childrenTable[_SqrtPos.ind];
     final surd = childrenTable[_SqrtPos.surd]!;
 
-    final Size baseSize = base.getLayoutSize(infiniteConstraint, dry: dry);
-    final Size indexSize = index?.getLayoutSize(
+    final baseSize = base.getLayoutSize(infiniteConstraint, dry: dry);
+    final indexSize = index?.getLayoutSize(
           infiniteConstraint,
           dry: dry,
         ) ??

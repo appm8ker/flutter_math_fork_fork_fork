@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../font/metrics/font_metrics.dart';
 import '../../render/constants.dart';
-import '../../render/layout/layout_builder_baseline.dart';
 import '../../render/layout/line.dart';
 import '../../render/layout/shift_baseline.dart';
 import '../../render/svg/delimiter.dart';
@@ -61,7 +60,7 @@ class LeftRightNode extends SlotableNode<EquationRowNode> {
               : getSpacingSize(index == 0 ? AtomType.open : AtomType.rel,
                       body[(index + 1) ~/ 2].leftType, options.style)
                   .toLpUnder(options),
-          child: LayoutBuilderPreserveBaseline(
+          child: LayoutBuilder(
             builder: (context, constraints) => buildCustomSizedDelimWidget(
               index == 0
                   ? leftDelim
