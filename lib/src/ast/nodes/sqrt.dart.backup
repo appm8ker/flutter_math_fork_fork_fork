@@ -171,9 +171,9 @@ class SqrtLayoutDelegate extends CustomLayoutDelegate<_SqrtPos> {
     final index = childrenTable[_SqrtPos.ind];
     final surd = childrenTable[_SqrtPos.surd]!;
 
-    final baseSize = base.getLayoutSize(boundedConstraint, dry: dry);
+    final baseSize = base.getLayoutSize(infiniteConstraint, dry: dry);
     final indexSize = index?.getLayoutSize(
-          boundedConstraint,
+          infiniteConstraint,
           dry: dry,
         ) ??
         Size.zero;
