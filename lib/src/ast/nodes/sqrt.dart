@@ -31,14 +31,13 @@ class SqrtNode extends SlotableNode {
   /// The sqrt-and.
   final EquationRowNode base;
 
-  SqrtNode({
-    required this.index,
-    required this.base,
-  });
+  SqrtNode({required this.index, required this.base});
 
   @override
   BuildResult buildWidget(
-      MathOptions options, List<BuildResult?> childBuildResults) {
+    MathOptions options,
+    List<BuildResult?> childBuildResults,
+  ) {
     final baseResult = childBuildResults[1]!;
     final indexResult = childBuildResults[0];
     return BuildResult(
@@ -65,19 +64,17 @@ class SqrtNode extends SlotableNode {
             // render lines in the base widget
             child: IgnorePointer(
               child: LayoutBuilder(
-                builder: (context, constraints) => sqrtSvg(
-                  minDelimiterHeight: constraints.minHeight,
-                  baseWidth: constraints.minWidth,
-                  options: options,
-                ),
+                builder:
+                    (context, constraints) => sqrtSvg(
+                      minDelimiterHeight: constraints.minHeight,
+                      baseWidth: constraints.minWidth,
+                      options: options,
+                    ),
               ),
             ),
           ),
           if (index != null)
-            CustomLayoutId(
-              id: _SqrtPos.ind,
-              child: indexResult!.widget,
-            ),
+            CustomLayoutId(id: _SqrtPos.ind, child: indexResult!.widget),
         ],
       ),
     );
@@ -85,9 +82,9 @@ class SqrtNode extends SlotableNode {
 
   @override
   List<MathOptions> computeChildOptions(MathOptions options) => [
-        options.havingStyle(MathStyle.scriptscript),
-        options.havingStyle(options.style.cramp()),
-      ];
+    options.havingStyle(MathStyle.scriptscript),
+    options.havingStyle(options.style.cramp()),
+  ];
 
   @override
   List<EquationRowNode?> computeChildren() => [index, base];
@@ -103,26 +100,15 @@ class SqrtNode extends SlotableNode {
       false;
 
   @override
-  SqrtNode updateChildren(List<EquationRowNode?> newChildren) => SqrtNode(
-        index: newChildren[0],
-        base: newChildren[1]!,
-      );
+  SqrtNode updateChildren(List<EquationRowNode?> newChildren) =>
+      SqrtNode(index: newChildren[0], base: newChildren[1]!);
 
   @override
-  Map<String, Object?> toJson() => super.toJson()
-    ..addAll({
-      'index': index?.toJson(),
-      'base': base.toJson(),
-    });
+  Map<String, Object?> toJson() =>
+      super.toJson()..addAll({'index': index?.toJson(), 'base': base.toJson()});
 
-  SqrtNode copyWith({
-    EquationRowNode? index,
-    EquationRowNode? base,
-  }) =>
-      SqrtNode(
-        index: index ?? this.index,
-        base: base ?? this.base,
-      );
+  SqrtNode copyWith({EquationRowNode? index, EquationRowNode? base}) =>
+      SqrtNode(index: index ?? this.index, base: base ?? this.base);
 }
 
 enum _SqrtPos {
@@ -148,8 +134,9 @@ class SqrtLayoutDelegate extends CustomLayoutDelegate<_SqrtPos> {
 
   @override
   double computeDistanceToActualBaseline(
-          TextBaseline baseline, Map<_SqrtPos, RenderBox> childrenTable) =>
-      heightAboveBaseline;
+    TextBaseline baseline,
+    Map<_SqrtPos, RenderBox> childrenTable,
+  ) => heightAboveBaseline;
 
   @override
   double getIntrinsicSize({
@@ -158,8 +145,7 @@ class SqrtLayoutDelegate extends CustomLayoutDelegate<_SqrtPos> {
     required double extent,
     required double Function(RenderBox child, double extent) childSize,
     required Map<_SqrtPos, RenderBox> childrenTable,
-  }) =>
-      0;
+  }) => 0;
 
   @override
   Size computeLayout(
@@ -171,23 +157,30 @@ class SqrtLayoutDelegate extends CustomLayoutDelegate<_SqrtPos> {
     final index = childrenTable[_SqrtPos.ind];
     final surd = childrenTable[_SqrtPos.surd]!;
 
-    final baseSize = base.getLayoutSize(infiniteConstraint, dry: dry);
-    final indexSize = index?.getLayoutSize(
-          infiniteConstraint,
-          dry: dry,
-        ) ??
-        Size.zero;
+    // final baseSize = base.getLayoutSize(infiniteConstraint, dry: dry);
+    // Fix: Use bounded constraints instead of infinite to prevent layout crashes
+    final boundedConstraint = BoxConstraints(
+      maxWidth: constraints.maxWidth.isFinite ? constraints.maxWidth : 400.0,
+      maxHeight: constraints.maxHeight.isFinite ? constraints.maxHeight : 200.0,
+    );
+    final Size baseSize = base.getLayoutSize(boundedConstraint, dry: dry);
+    // final indexSize =
+    //     index?.getLayoutSize(infiniteConstraint, dry: dry) ?? Size.zero;
+    final Size indexSize =
+        index?.getLayoutSize(boundedConstraint, dry: dry) ?? Size.zero;
 
     final baseHeight = dry ? 0 : base.layoutHeight;
     final baseWidth = baseSize.width;
     final indexHeight = dry ? 0 : index?.layoutHeight ?? 0.0;
     final indexWidth = indexSize.width;
 
-    final theta = baseOptions.fontMetrics.defaultRuleThickness.cssEm
-        .toLpUnder(baseOptions);
-    var phi = baseOptions.style > MathStyle.text
-        ? baseOptions.fontMetrics.xHeight.cssEm.toLpUnder(baseOptions)
-        : theta;
+    final theta = baseOptions.fontMetrics.defaultRuleThickness.cssEm.toLpUnder(
+      baseOptions,
+    );
+    var phi =
+        baseOptions.style > MathStyle.text
+            ? baseOptions.fontMetrics.xHeight.cssEm.toLpUnder(baseOptions)
+            : theta;
     var psi = theta + 0.25 * phi.abs();
 
     final minSqrtHeight = baseSize.height + psi + theta;
@@ -206,8 +199,10 @@ class SqrtLayoutDelegate extends CustomLayoutDelegate<_SqrtPos> {
     final indexLeftPadding = 0.5.pt.toLpUnder(options);
 
     // Horizontal layout
-    final sqrtHorizontalPos =
-        math.max(0.0, indexLeftPadding + indexSize.width + indexRightPadding);
+    final sqrtHorizontalPos = math.max(
+      0.0,
+      indexLeftPadding + indexSize.width + indexRightPadding,
+    );
     final width = sqrtHorizontalPos + surdSize.width;
 
     // Vertical layout
@@ -224,8 +219,10 @@ class SqrtLayoutDelegate extends CustomLayoutDelegate<_SqrtPos> {
     final bodyHeight = baseHeight + psi + ruleWidth;
     final bodyDepth = surdSize.height - bodyHeight;
     final indexShift = 0.6 * (bodyHeight - bodyDepth);
-    final sqrtVerticalPos =
-        math.max(0.0, indexHeight + indexShift - baseHeight - psi - ruleWidth);
+    final sqrtVerticalPos = math.max(
+      0.0,
+      indexHeight + indexShift - baseHeight - psi - ruleWidth,
+    );
     final height = sqrtVerticalPos + surdSize.height;
 
     // Position children
@@ -234,9 +231,13 @@ class SqrtLayoutDelegate extends CustomLayoutDelegate<_SqrtPos> {
       heightAboveBaseline = bodyHeight + sqrtVerticalPos;
 
       base.offset = Offset(
-          sqrtHorizontalPos + advanceWidth, heightAboveBaseline - baseHeight);
-      index?.offset = Offset(sqrtHorizontalPos - indexRightPadding - indexWidth,
-          heightAboveBaseline - indexShift - indexHeight);
+        sqrtHorizontalPos + advanceWidth,
+        heightAboveBaseline - baseHeight,
+      );
+      index?.offset = Offset(
+        sqrtHorizontalPos - indexRightPadding - indexWidth,
+        heightAboveBaseline - indexShift - indexHeight,
+      );
       surd.offset = Offset(sqrtHorizontalPos, sqrtVerticalPos);
     }
 
@@ -262,7 +263,10 @@ const emPad = vbPad / 1000;
 // We will use a highly similar strategy while sticking to the strict meaning
 // of TexBook Rule 11. We do not choose the style at *normalsize*
 double getSqrtAdvanceWidth(
-    double minDelimiterHeight, double baseWidth, MathOptions options) {
+  double minDelimiterHeight,
+  double baseWidth,
+  MathOptions options,
+) {
   // final newOptions = options.havingBaseSize();
   final delimConf = sqrtDelimieterSequence.firstWhereOrNull(
     (element) =>
@@ -320,16 +324,17 @@ Widget sqrtSvg({
 
   // These are the known height + depth for \u221A
   if (delimConf != null) {
-    final fontHeight = const {
-      'Main-Regular': 1.0,
-      'Size1-Regular': 1.2,
-      'Size2-Regular': 1.8,
-      'Size3-Regular': 2.4,
-      'Size4-Regular': 3.0,
-    }[delimConf.font.fontName]!;
+    final fontHeight =
+        const {
+          'Main-Regular': 1.0,
+          'Size1-Regular': 1.2,
+          'Size2-Regular': 1.8,
+          'Size3-Regular': 2.4,
+          'Size4-Regular': 3.0,
+        }[delimConf.font.fontName]!;
     final delimOptions = options.havingStyle(delimConf.style);
-    final viewPortHeight =
-        (fontHeight + extraViniculum + emPad).cssEm.toLpUnder(delimOptions);
+    final viewPortHeight = (fontHeight + extraViniculum + emPad).cssEm
+        .toLpUnder(delimOptions);
     if (delimConf.font.fontName == 'Main-Regular') {
       // We will be vertically stretching the sqrtMain path (by viewPort vs
       // viewBox) to mimic the height of \u221A under Main-Regular font and
@@ -340,8 +345,7 @@ Widget sqrtSvg({
       final viewBoxWidth = viewPortWidth.lp.toCssEmUnder(delimOptions) * 1000;
       final svgPath = sqrtPath('sqrtMain', extraViniculum, viewBoxHeight);
       return ResetBaseline(
-        height: (options.fontMetrics.sqrtRuleThickness + extraViniculum)
-            .cssEm
+        height: (options.fontMetrics.sqrtRuleThickness + extraViniculum).cssEm
             .toLpUnder(delimOptions),
         child: MinDimension(
           topPadding: -emPad.cssEm.toLpUnder(delimOptions),
@@ -365,11 +369,13 @@ Widget sqrtSvg({
       );
       final viewBoxHeight = (1000 + vbPad) * fontHeight;
       final viewBoxWidth = viewPortWidth.lp.toCssEmUnder(delimOptions) * 1000;
-      final svgPath = sqrtPath('sqrt${delimConf.font.fontName.substring(0, 5)}',
-          extraViniculum, viewBoxHeight);
+      final svgPath = sqrtPath(
+        'sqrt${delimConf.font.fontName.substring(0, 5)}',
+        extraViniculum,
+        viewBoxHeight,
+      );
       return ResetBaseline(
-        height: (options.fontMetrics.sqrtRuleThickness + extraViniculum)
-            .cssEm
+        height: (options.fontMetrics.sqrtRuleThickness + extraViniculum).cssEm
             .toLpUnder(delimOptions),
         child: MinDimension(
           topPadding: -emPad.cssEm.toLpUnder(delimOptions),
@@ -379,8 +385,9 @@ Widget sqrtSvg({
             Rect.fromLTWH(0, 0, viewBoxWidth, viewBoxHeight),
             options.color,
             align: Alignment.topLeft,
-            fit: BoxFit
-                .cover, // BoxFit.fitHeight, // For DomCanvas compatibility
+            fit:
+                BoxFit
+                    .cover, // BoxFit.fitHeight, // For DomCanvas compatibility
           ),
         ),
       );
@@ -389,7 +396,8 @@ Widget sqrtSvg({
     // We will use the viewBoxHeight parameter in sqrtTall path
     final viewPortHeight =
         minDelimiterHeight + (extraViniculum + emPad).cssEm.toLpUnder(options);
-    final viewBoxHeight = 1000 * minDelimiterHeight.lp.toCssEmUnder(options) +
+    final viewBoxHeight =
+        1000 * minDelimiterHeight.lp.toCssEmUnder(options) +
         extraViniculum +
         vbPad;
     final advanceWidth = 1.056.cssEm.toLpUnder(options);
@@ -397,8 +405,7 @@ Widget sqrtSvg({
     final viewBoxWidth = viewPortWidth.lp.toCssEmUnder(options) * 1000;
     final svgPath = sqrtPath('sqrtTall', extraViniculum, viewBoxHeight);
     return ResetBaseline(
-      height: (options.fontMetrics.sqrtRuleThickness + extraViniculum)
-          .cssEm
+      height: (options.fontMetrics.sqrtRuleThickness + extraViniculum).cssEm
           .toLpUnder(options),
       child: MinDimension(
         topPadding: -emPad.cssEm.toLpUnder(options),
